@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Forever Yours</title>
+<link href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@800&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500;1,600;1,700&display=swap" rel="stylesheet">
+<style>
+:root{--pn:#0c0712;--tx:#eae1f7;--bd:#4a2a7a;--bb:#1d1033;--bf:#e4d8f7;--hi:#cbb4f2;--sh:rgba(90,50,160,.5)}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;background:#000;overflow:hidden}
+body{display:grid;place-items:center}
+#stage{position:relative;width:min(100vw,133.333vh);aspect-ratio:4/3;container-type:size;overflow:hidden;user-select:none;background:radial-gradient(circle at 28% 18%,#24103f 0,#07030d 55%,#000);font-family:'Cormorant Garamond',Georgia,serif;color:var(--tx)}
+#wall{position:absolute;inset:0;visibility:hidden;transition:filter 2.5s;filter:brightness(var(--dim,.5)) contrast(1.1) saturate(.8)}
+#wall img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+#bg{background:#000}
+#gr,#gc{opacity:0;mix-blend-mode:screen}
+#gr{filter:url(#fr)}#gc{filter:url(#fc)}
+#vig{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(rgba(0,0,0,.18) 0 1px,transparent 1px 3px),radial-gradient(transparent 50%,rgba(14,4,28,.7));box-shadow:inset 0 0 8cqw 2cqw #000}
+.scr{position:absolute;inset:0}
+button,select,input{cursor:inherit;font:inherit}
+button,select{background:var(--bb);color:var(--bf);border:.35cqw solid var(--bd);border-radius:2cqw;padding:.6cqw 2.8cqw;font:700 2.8cqw 'Cormorant Garamond',Georgia,serif;letter-spacing:.02em;box-shadow:0 .4cqw 1.2cqw var(--sh);transition:transform .12s,filter .12s}
+button:hover{filter:brightness(1.15);transform:translateY(-.2cqw)}
+button:disabled{opacity:.35;pointer-events:none}
+button:focus-visible{outline:.3cqw solid var(--hi);outline-offset:.3cqw}
+.frame,#box{background:color-mix(in srgb,var(--pn) var(--op,92%),transparent);border:.7cqw solid var(--bd);border-radius:4.4cqw;box-shadow:0 .8cqw 3cqw var(--sh)}
+#title{display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse,rgba(20,6,40,.25),rgba(0,0,0,.7))}
+#tp{display:flex;flex-direction:column;align-items:center;gap:1.6cqw;padding:5cqw 9cqw 6cqw}
+h1{font:800 9cqw/1 'Grenze Gotisch','Times New Roman',serif;margin:0;color:var(--hi);text-shadow:0 .4cqw 1.6cqw var(--sh);animation:beat 1.9s infinite}
+@keyframes beat{0%,36%,100%{transform:scale(1)}8%{transform:scale(1.05)}16%{transform:scale(1)}24%{transform:scale(1.035)}}
+@media(prefers-reduced-motion:reduce){h1{animation:none}}
+#sub{margin:0 0 2.5cqw;font-size:3.5cqw;font-style:italic;font-weight:600}
+#tp button{min-width:26cqw}
+#gear{position:absolute;top:2.5cqw;right:2.5cqw;padding:.4cqw 1.5cqw;font-size:3cqw}
+#box{position:absolute;left:4cqw;right:4cqw;bottom:6cqw;min-height:23cqw;padding:3.2cqw 4.8cqw 6.5cqw}
+#box::after{content:"";position:absolute;left:50%;bottom:calc(var(--rw,18cqw) / -4);width:var(--rw,18cqw);height:calc(var(--rw,18cqw) / 2);transform:translateX(-50%);background:var(--rb) center/contain no-repeat;pointer-events:none}
+#who{position:absolute;top:-3.2cqw;left:2.6cqw;padding:.3cqw 2cqw;background:var(--bb);border:.35cqw solid var(--bd);border-radius:1.8cqw;color:var(--bf);font:700 2.9cqw 'Cormorant Garamond',Georgia,serif}
+#txt{margin:0;font-size:3.6cqw;font-style:italic;font-weight:600;line-height:1.38;white-space:pre-line}
+#choices{position:absolute;left:0;right:0;bottom:100%;margin-bottom:5cqw;display:flex;flex-direction:column;gap:1.2cqw}
+#choices button{font-size:3.1cqw;padding:.7cqw 2.2cqw;text-align:left}
+#nav{position:absolute;right:2.4cqw;bottom:1.8cqw;display:flex;gap:1.2cqw;align-items:center}
+#cnt{font-size:2.7cqw;opacity:.7;margin-right:1cqw}
+#set{z-index:5;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center}
+#sp{display:flex;flex-direction:column;align-items:center;gap:1.8cqw;padding:3.5cqw 6cqw}
+#sp h2{font:800 6.5cqw 'Grenze Gotisch',serif;margin:0 0 .5cqw;color:var(--hi);text-shadow:0 .3cqw 1.4cqw var(--sh)}
+.row{display:grid;grid-template-columns:22cqw 34cqw;align-items:center;gap:2cqw;font:700 2.9cqw 'Cormorant Garamond',Georgia,serif}
+.row select{width:100%;padding:.4cqw 1cqw;font-size:2.7cqw}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:2.6cqw;margin:0;border-radius:1.3cqw;border:.35cqw solid var(--bd);outline:none;background:linear-gradient(90deg,var(--hi) var(--v,50%),color-mix(in srgb,var(--bd) 30%,transparent) var(--v,50%))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:0;height:0}
+input[type=range]::-moz-range-thumb{width:0;height:0;border:0;background:transparent}
+input[type=range]::-moz-range-track{background:transparent}
+</style></head>
+<body>
+<div id="stage">
+ <div id="wall"><img id="bg" alt=""><img id="gr" alt=""><img id="gc" alt=""></div>
+ <div id="vig"></div>
+ <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="fr"><feColorMatrix values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0"/></filter><filter id="fc"><feColorMatrix values="0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0"/></filter></svg>
+
+ <section id="title" class="scr"><div id="tp" class="frame">
+  <h1 id="gt"></h1><p id="sub"></p>
+  <button id="start">Begin</button><button id="opt">Settings</button>
+ </div></section>
+
+ <section id="game" class="scr" hidden>
+  <button id="gear" aria-label="Settings">&#9881;</button>
+  <div id="box" class="frame">
+   <div id="choices" hidden></div><div id="who" hidden></div><p id="txt"></p>
+   <div id="nav"><span id="cnt"></span><button id="back">&lsaquo; Back</button><button id="next">Next &rsaquo;</button></div>
+  </div>
+ </section>
+
+ <section id="set" class="scr" hidden><div id="sp" class="frame">
+  <h2>Settings</h2>
+  <div class="row"><span>Music</span><select id="sm"></select></div>
+  <div class="row"><span>Music volume</span><input type="range" id="mv" min="0" max="1" step="0.01"></div>
+  <div class="row"><span>Effects volume</span><input type="range" id="sv" min="0" max="1" step="0.01"></div>
+  <div class="row"><span>Cursor</span><select id="sc"></select></div>
+  <div class="row"><span>Palette</span><select id="sb"></select></div>
+  <button id="close">Close</button>
+  </div>
+ </section>
+</div>
+
+<script>
+/* =====================================================================
+   EDIT HERE — tutto il gioco si configura in questo blocco.
+   Metti GIF, MP3 e immagini nella stessa cartella di questo file html
+   (o in sottocartelle) e scrivi qui sotto i nomi dei file.
+   ===================================================================== */
+const N = (text, o) => ({ text, ...o }), H = (text, o) => ({ speaker: "Her", text, ...o }),
+  C = (text, reply, add = 1, res = 0, set) => ({ text, reply, add, res, set });
+const GAME = {
+  title: "Forever Yours",
+  subtitle: "She will never let you leave",
+
+  wallpaper: "wallpaper.png",   // GIF di sfondo (qualsiasi misura: sta in 4:3 con bordi neri). "" = nessuna
+  clickSound: "click.mp3",      // suono dei tasti (se manca il file, parte un suono di riserva)
+  textSpeed: 24,                // ms per lettera (0 = testo istantaneo)
+  typeSound: "type-narrator.mp3",   // suono del testo di narrazione (se manca il file: tick sintetico grave e morbido). "" = silenzio
+  voices: { Her: "type-her.mp3" },  // un suono per ogni speaker (se manca il file: tick sintetico acuto). "" = silenzio
+  typeVolume: 1,                    // volume del suono della narrazione (0-1, si somma allo slider Effects)
+  voiceVolumes: { Her: 0.3 },       // volume del suono di ogni speaker: piu basso = piu piano
+  musicGain: 0.35,                  // volume della musica rispetto ai suoni del testo (piu basso = piu piano)
+  clickGain: 0.3,                   // volume del suono dei tasti rispetto ai suoni del testo
+  ribbon: "ribbon.png",             // PNG del nastro sul riquadro di testo: 720x360 px, sfondo trasparente ("" = nastro disegnato)
+  ribbonWidth: 18,                  // larghezza del nastro, in % della larghezza del gioco
+  boxOpacity: 0.92,                 // opacita dei riquadri (0.90-0.95 = leggermente trasparenti)
+  typeEvery: 2,                 // un suono ogni N lettere
+  wallpaperBrightness: 0.5,     // luminosita dello sfondo: 1 = originale, 0 = nero
+  glitch: true,                 // glitch leggero sullo sfondo
+  meterMax: 60,                 // valore "ossessione" al quale gli effetti sono al massimo
+  meterStart: 0,                // valore iniziale
+  debug: false,                 // true = mostra il valore dell'ossessione (per testare)
+
+  // Brani selezionabili nelle impostazioni. src "" = silenzio.
+  music: [
+    { name: "Trigger",   src: "Trigger.mp3" },
+    { name: "Mine", src: "Mine.mp3" },
+    { name: "Giggle",       src: "Giggle.mp3" }
+  ],
+
+  // Cursori: "svg" (inline) oppure "src" (file png/cur). hot = punto attivo "x y".
+  cursors: [
+    { name: "Knife",   src: "knife.png",   hot: "0 0" },
+    { name: "Pocky",   src: "pocky.png",   hot: "0 0" },
+    { name: "Syringe", src: "syringe.png", hot: "0 0" }
+  ],
+
+  // PALETTE (3): pn = riquadri, tx = testo, bd = bordi, bb/bf = tasti (sfondo/testo), hi = titoli, sh = ombra
+  themes: [
+    { name: "Goth",      pn: "#0c0712", tx: "#eae1f7", bd: "#4a2a7a", bb: "#1d1033", bf: "#e4d8f7", hi: "#cbb4f2", sh: "rgba(90,50,160,.5)" },
+    { name: "Amethyst",  pn: "#cdb9ee", tx: "#241040", bd: "#7e5bc0", bb: "#b69be8", bf: "#1f0c3a", hi: "#4a1f8a", sh: "rgba(45,18,90,.65)" },
+    { name: "Porcelain", pn: "#e8e5ed", tx: "#26222e", bd: "#aaa4b9", bb: "#f4f2f7", bf: "#26222e", hi: "#5f5a70", sh: "rgba(255,255,255,.85)" }
+  ],
+
+  // SCENE — N("testo") = narrazione, H("testo") = lei che parla (speaker "Her").
+  // Opzioni extra: N("testo", { add: 1 }) fa salire l'ossessione (sfondo piu scuro, piu glitch).
+  // SCELTE: H("...", { choices: [C("tua scelta", "risposta di lei", add), C("altra scelta", "~risposta narrata", add)] })
+  // (la risposta con ~ davanti e narrazione; senza ~ parla lei; add = quanto sale l'ossessione)
+  // C(testo, risposta, add, res, set): res = quanto la scelta e ribelle (somma = "resistenza"); set = { flag: true }
+  // FINALI: branch: [{ if: "flag", rmin: 10, goto: "id" }, { rmax: 5, goto: "id" }, { goto: "id" }]  (vale il primo che combacia)
+  // VARIANTI: H("testo base", { alt: { flag: "testo se il flag e attivo" } }) = la scena cambia in base a scelte passate (set: { flag: true })
+  // CONTATORI: set: { raw: "+1" } conta le scelte "oneste"; nei finali: branch: [{ ge: { raw: 3 }, goto: "id" }]
+  // speed: N = ms per lettera solo per quella scena (basso = veloce e nervosa, alto = lenta e minacciosa)
+  // TOKEN: {pet} = come lei ti chiama (kitty/puppy dopo la tua scelta), {noise} e {cry} = versi dell'animale scelto
+  // Funzionano ancora id, goto, choices, branch, bg, end (vedi spiegazione precedente).
+  scenes: [
+    N("A soft, tuneless humming drifts through the dark, a woman's voice. Somewhere close, metal drags slowly across stone. Scrrraaape."),
+    N("Your head throbs. Cold concrete under you. Something is tied across your mouth, and your wrists are bound behind a pole."),
+    H("Are you finally deciding to wake up?", { choices: [C("Pull at the ropes.", "~The ropes bite into your wrists. The pole does not even creak. Her humming resumes, patient and amused.", 2, 1), C("Lie still and watch her.", "Such wide, watchful eyes. I like being looked at that way.")] }),
+    N("The scraping stops. A figure sits just beyond the lamplight, a blade in one hand and a whetstone in the other."),
+    H("I would be lying if I said I wasn't starting to get concerned. I was worried I hit you over the head a little too hard. You've been asleep for almost a day."),
+    N("Her left eye twitches, once, twice. She presses two fingers against it until it stops."),
+    N("Scrrraaape. She tilts her head, studying you."),
+    H("I'm always extra prepared, but you gave me even more time to prepare. So, I must apologize. It's a bit chilly in here, isn't it?"),
+    H("Is the floor cold? It's so hard to warm up concrete."),
+    N("She bounces the whetstone in her palm like a rattle, grinning down at it. Her foot taps a rhythm that matches nothing."),
+    H("You look so scared. What's making you so nervous? Don't worry, I'll let you process everything.", { choices: [C("Try to scream.", "~Your cry dies as a muffled whimper behind the gag. She winces, then smiles at the sound.", 2, 1), C("Force yourself to breathe slowly.", "That's it. Slow and steady. A calm heart is a lovely thing.")] }),
+    H("I won't ungag you just yet. This basement is soundproof, but it echoes. I don't know how loud you scream, and I'm not looking to burst an eardrum."),
+    N("Scrrraaape. A long, slow drag of steel, and a small, pleased sigh."),
+    H("I love that noise. If you couldn't tell, I love the way it slowly scrapes at the end. It's quite satisfying."),
+    H("Did you know concrete takes twenty-eight days to fully cure? I read that. I read a lot of things down here, when it's quiet. Anyway!", { speed: 13 }),
+    H("So you're probably wondering why you're here. Personally, I think it's obvious, but I'm willing to communicate."),
+    H("It's hard to keep any relationship without communication."),
+    H("My piano teacher used to say I had the wrong kind of hands. Too quick. Too hungry. She stopped teaching me after the recital. Anyway. Where was I?", { speed: 13 }),
+    H("You're in my basement. I think I mentioned that. And you're tied to a pole. I know it's unusual. The biggest question on your mind is probably: why me?"),
+    N("She leans forward on her stool until her nose almost touches yours. She smells of soap, and of something sweet and burnt."),
+    N("She laughs softly, as though you had said something sweet."),
+    H("Don't worry, I'll tell you. I took a very special liking to you. I don't go searching for someone. I live my life like nothing's wrong. But then someone catches my attention.", { speed: 14, add: 1 }),
+    N("She taps each fingertip against her thumb in order, index to pinky, over and over, never looking down at her hand."),
+    H("You caught my eye. You're not normal, are you? You don't fit in. People don't like you. Nobody appreciates you."),
+    H("In fact, I wonder if anyone will notice you're gone. You've lain in bed staring at the ceiling, wondering who would miss you if you disappeared, haven't you?"),
+    N("She giggles, then clamps a hand over her mouth, eyes wide, as though the sound had escaped on its own."),
+    H("I'll be watching the news to see if they say your name. So far, nothing. Do you think anyone cares?"),
+    N("She mimes a tiny television with her fingers and hums the news jingle, off-key. Then she drops her hand and stares at you."),
+    N("A quiet, tender laugh echoes off the bare walls."),
+    H("I can tell you one thing for sure. I care about you far more than anyone ever has. Can you name another person who went to such lengths to get you into their house? Their basement?", { choices: [C("Shake your head slowly.", "No. Not a single one. Isn't that something?"), C("Glare at her.", "Such fire in those eyes. Let's see how long it lasts.", 2, 1, { glare: true })] }),
+    H("But isn't this nice? A little bonding experience between the two of us."),
+    H("The only way to truly know a person is to see them at their most afraid. Fragile. Desperate. Vulnerable."),
+    H("I want to see what you do when you can't imagine your future anymore."),
+    N("Scrrraaape. Her humming has died. She frowns, as if you have broken a script she knows by heart."),
+    H("Can I tell you something? Your reaction is rather odd. Even after I explain myself, everyone is still terrified. But with every word I speak, your face seems to relax more.", { add: 1, alt: { glare: "Can I tell you something? Your reaction is rather odd. Even after I explain myself, everyone is still terrified. You glare at me, but with every word I speak, your eyes seem to soften." } }),
+    H("Do you find comfort in this? You understand me, don't you? You understand why I do such a drastic thing. How badly I want to see true emotions."),
+    H("Everyone calls me crazy. Maybe I am, a little. But what is so wrong with wanting to see someone in their rawest form?"),
+    N("She spins the knife on its point against the floor. The tiny scratching sound goes on a little too long."),
+    H("At first it hurt, telling my friends how badly I wanted to see their raw emotions. I loved them so much."),
+    H("And they didn't understand when I hurt them. I did it because I loved them."),
+    H("Sorry. I get so loud when I'm happy. Mother always said so. Mother says a lot of things. Well. Said.", { speed: 13 }),
+    H("I remember them forever. But why doesn't anyone..."),
+    N("Her voice cracks and trails away. The blade drags against stone again, harder now."),
+    H("I want to find someone who understands. Someone who wants raw emotion and love as much as I do. Why is that so hard to find?"),
+    N("She hugs her knees to her chest and rocks once, twice, the knife dangling from one loose hand."),
+    H("I think you're the closest. You're not glaring at me. Your expression only grows softer. Do you want to understand me?", { alt: { glare: "I think you're the closest. You glare at me, but you keep listening, and your eyes keep softening. Do you want to understand me?" }, choices: [C("Nod slowly.", "I knew it. I knew you were different."), C("Turn your face away.", "Don't look away. Look at me. Please.", 2, 1)] }),
+    N("The scraping stops. She rises, and her footsteps cross the concrete toward you."),
+    H("If you promise not to scream, I'll ungag you. Do you comply? Nod or shake your head.", { choices: [C("Nod.", "~You nod. Her smile blooms."), C("Shake your head.", "~Her fingers slide under your chin and press your head, gently and firmly, into a nod. “There. Much better.”", 3, 2)] }),
+    H("If you scream, I might have to remove your tongue. So do me a favor and keep your silence. Now, hold still for me.", { speed: 44 }),
+    N("Her thumb strokes your lower lip, tender, almost pitying. “I'd hate to,” she whispers. “I really would.”"),
+    N("Cool fingers brush your cheek. A knot loosens, the gag falls away, and you drag in a breath of cold, damp air.", { add: 1 }),
+    H("There you go. It must feel so much better to have that out of your mouth. But remember: do not act out of line."),
+    N("She pats your cheek twice, light as a bird, then wipes her fingers on her skirt as if you had left something on them."),
+    H("I've been told I have a bit of an anger issue, that I act on impulse. So just try not to upset me, and we'll get along fine. Do you have any questions?", { choices: [C("“Why did you pick me?”", "Straight to the heart of it. I like that in a person."), C("“What are you going to do to me?”", "Oh, we'll get to that. But it isn't the question you really want answered.", 2, 1)] }),
+    H("Why did I pick you? It's a gut feeling. I passed by you, and something told me I needed to know more. Curiosity took over."),
+    N("Her thumbnail picks at the skin beside her other thumbnail until a bead of red wells up. She doesn't seem to feel it."),
+    H("Watching your daily life only works for so long. You lie in bed and text people, you go to the store. All of it could be fake."),
+    N("She counts something off on her fingers, lips moving silently. Then she shakes her head and starts again."),
+    H("But put a person in the right situation, a breakup, a death, locked in a girl's basement, and the body reacts on its own. That's the truest form of a person."),
+    H("And you're not screaming. You didn't yell once after I ungagged you. You're hardly even struggling. You're either a sociopath, or you're enjoying this."),
+    H("Do you like that I want to be near you? That I'd risk my whole life to have you here? Are you happy?", { choices: [C("“...Yes. I'm happy.”", "~Her breath catches, and her whole face softens."), C("“No. I'm terrified.”", "Honest. Terrified, and still here, still listening. That's even better.", 2, 0, { raw: "+1" })] }),
+    N("She exhales, a long and trembling sigh."),
+    H("A lot of people tell you you're not interesting. People who just don't want you. But I'm a new experience, aren't I? I want you."),
+    N("Soft laughter, then a pause that stretches too long. Her hands, so steady until now, begin to shake."),
+    H("This is new. Normally I follow the same formula. I wake you up, I play with you, and then you pass away. But what is this feeling in my chest?"),
+    N("She presses a fist to her breastbone and winces, as if the feeling were a stone she had swallowed."),
+    H("I don't want you to pass away. I want to learn more about you, but I don't want you to go. What do I do? Come on. Hold yourself together."),
+    N("She stands too fast, and the stool clatters away behind her. She doesn't seem to notice."),
+    H("Can you give me a second to think? I need to figure out what I want to do with you."),
+    N("Scrrraaape. Scrrraaape. She paces, dragging the blade along the pipes and muttering to herself."),
+    H("You seem so wonderful. I don't want to hurt you. Could I keep you here? Why does the thought of ending you hurt me? Why is this so frustrating?", { choices: [C("“Then keep me.”", "Keep you. Yes. Say it again.", 2), C("“Then let me go.”", "Go? ...No. No, that isn't what I want at all.", 3, 2)] }),
+    N("She stops, breathes, and turns back with a trembling smile."),
+    H("Would it be okay if I asked you some questions? Have you ever been in love? Do you want to be?", { choices: [C("“Yes. I'd like to be.”", "Oh. Oh, that's lovely."), C("“Never. No one ever wanted me.”", "No one? How silly of them. Their loss is my gain.")] }),
+    H("If you had a very, very strong desire for a person, what would you do for them? Would jealousy fill you at the thought of losing them?"),
+    H("Would you do anything for them? Please, tell me.", { choices: [C("“I'd do anything for them.”", "Anything. You said anything. I'll remember that.", 2, 0, { anything: true }), C("“I'd protect them.”", "Protect. Mm. That's a sweet word for it.")] }),
+    H("Is that truly how you feel? Because if you were lying, I would be very, very upset. You promise? You really aren't lying?", { choices: [C("“I promise. I'm not lying.”", "~She presses a hand to her chest and laughs, shaky and breathless."), C("“I... I think so.”", "Think? ...No. You wouldn't lie to me. Not after all this.", 2)] }),
+    H("Does someone finally understand me? No one ever takes the time. But you want to. I'm really happy. Is it okay to be happy right now?", { add: 1 }),
+    H("Don't get me wrong. I'm still very, very curious what would happen if I were to..."),
+    N("Scrrraaape. Her gaze slides over your hands, and then back to your face."),
+    H("...hurt you. How would your body react? But I don't want to lose you. I want to learn how you adapt and overcome, not through sudden pain."),
+    H("I think I'm going to keep you as my own pet. Doesn't that sound nice? I like you a lot.", { choices: [C("Nod, forcing a smile.", "There it is. My good pet.", 1, 0, { fake: "+1" }), C("Stare at the floor.", "Shy. How sweet.", 2)] }),
+    N("She sighs, almost dreamy. Then her smile sharpens."),
+    H("I do want to hurt you, just a little bit. Can you handle it? In fact, it doesn't matter. I'm still curious. Will you do me a favor?", { speed: 44, choices: [C("“...What favor?”", "Just hold still, darling. That's all I ask."), C("Press back against the pole.", "~The pole is cold and unmoving. She smiles at the futile effort, and her fingers close gently around your jaw.", 2, 1)] }),
+    N("Scrrraaape. She kneels in front of you, the blade bright in her hand."),
+    H("Hold still for me. And remember, don't get too loud. I still find the idea of that little tongue appealing. Be silent.", { speed: 44, add: 2 }),
+    N("She kisses your forehead first, very gently, the way you kiss a fever, and only then lifts the knife."),
+    N("The steel touches you, slow and sharp. A bright line of pain blooms. You choke back a cry, and your eyes sting with tears. Her soft laughter fills the basement."),
+    H("Look at you. How does it feel? Tell me, I want to know. Such a sudden pain, slow and sharp. Did you like it?"),
+    H("Did you hate it? Why are your eyes watering? You're so cute.", { choices: [C("“It hurts...”", "Thank you for telling me. Honesty is so precious.", 1, 0, { raw: "+1" }), C("Bite back a sob and say nothing.", "Silent, even now. Brave little thing.", 2)] }),
+    N("She sighs, lowers the blade, and wipes your tears with trembling fingers. Then she bends and kisses the thin red line, whispering I'm sorry, I'm sorry, I'm so sorry, even as her mouth curls into a smile."),
+    H("I'm sorry. Curiosity got the best of me, but I promise I won't do any more. I just had to know how your body would react. And now I do."),
+    N("She whispers numbers under her breath, three, four, five, then stops and starts over from one, as if she lost her place."),
+    H("You're adorable. I don't want to get rid of you. I want to keep you here with me. You'll live in my basement, and you'll be the only one. I won't bring anyone else down here."),
+    N("She winds a strand of hair around one finger, over and over, until the tip turns white."),
+    H("For a while I'll keep you tied to this pole. But if you prove you won't misbehave, I'll let you walk around."),
+    H("Maybe I'll even buy you a little bed. Someone to take care of you."),
+    H("I'll keep you forever. You belong to me now, okay? And I'll never, ever let you leave. And you must never act up, because if you misbehave, I won't be afraid to punish you.", { speed: 44, add: 1, choices: [C("“...Okay.”", "Good. That's all I wanted to hear."), C("“Please, let me go.”", "Hush. Don't spoil such a lovely moment.", 3, 2, { pleaded: true })] }),
+    N("Her laughter ripples, light and sweet. She brushes the hair from your face."),
+    H("You're so good. If you keep this up, I might even fall in love with you. Now hold tight. I have to run upstairs for some errands. Are you hungry?", { alt: { pleaded: "Oh, don't cry. Even your tears are lovely. If you keep this up, I might even fall in love with you. Now hold tight. I have to run upstairs for some errands. Are you hungry?" } }),
+    H("I'll cook you something, freshly made just for you. Though... don't ask me where the meat came from."),
+    N("She laughs, bright and strange, and rises to her feet."),
+    H("I'll be right back."),
+    N("Footsteps climb the stairs. A door opens, then closes. Then only silence."),
+    N("Time passes. Hours, or perhaps minutes. The cold seeps into your bones, until at last the door opens above and the footsteps return."),
+    N("A tune is humming again. The smell of cooked meat drifts down the stairs, and steel scrapes along the banister as she descends."),
+    H("Here you are. Did you miss me? I sure missed you. I'm sorry for being gone so long. But I told you I'd make you dinner. And I did."),
+    N("She sets the plate on a crate, then straightens the fork, the knife and the napkin, twice, until everything sits at perfect right angles."),
+    H("Like I said, don't ask where the meat is from. It's our little secret. We'll eat together, our first dinner. Doesn't that sound nice? I'm so excited."),
+    N("She lifts the lid with a flourish. Steam curls toward the lamp, and she breathes it in like perfume."),
+    H("But I have some more questions first. You agreed to be my pet, didn't you? You still mean it? I promise I'll be a good owner."),
+    H("Oh! Before I forget, did you know 'ephemeral' means lasting a very short time? I won a spelling bee with that word.", { speed: 13 }),
+    H("Fourth grade. They gave me a little blue ribbon. I still have it. Anyway. Where were we?", { speed: 13 }),
+    H("You do realize that even if you changed your mind, you don't have much of a choice. You are in my basement. You belong to me. Whatever I say goes.", { speed: 44 }),
+    N("Scrrraaape. Her smile does not change, but the air does."),
+    H("So please, keep that in mind. I like you a lot. The last thing I want is trouble. That would be rather unfortunate, wouldn't it? So please... behave."),
+    H("My other question: you told me you'd like to love me, didn't you? Even if I hurt you, even if I did anything I wanted to you, would you still want to love me?", { choices: [C("“Yes. Even then.”", "Even then... I could cry.", 2), C("“...I don't know.”", "Then we'll find out together. That's what time is for.", 3, 2)] }),
+    H("I'm a girl who likes to get what she wants. If you said no, we would simply have to fix that. I want you to love me, and we'll make it happen one way or another.", { speed: 44, add: 1 }),
+    N("She blinks very slowly, then not at all, her gaze fixed on you until your own eyes begin to water."),
+    H("Now then, do you promise to behave?", { choices: [C("“I promise.”", "~She gasps, delighted."), C("“Only if you don't hurt me.”", "Oh, I'll try. For you, I will really try.", 2)] }),
+    H("Wonderful. Now we can eat. Close your eyes and take a big, deep breath. It smells good, doesn't it? I hope you like it."),
+    N("Behind your closed eyes, a plate clinks softly onto a hard surface. The scent is rich and warm."),
+    H("A big old plate, full of food. Just for you. Now, can you say ah? Open up real wide. Here comes your plane.", { speed: 14 }),
+    H("Shhh... nom, nom, nom, nom. Is it good? I worked really hard on it.", { speed: 14, choices: [C("Open your mouth.", "Good. Chew slowly."), C("Turn your face away.", "~Her fingers catch your chin, gentle and unyielding, and turn you back. The fork slides between your lips anyway.", 2, 1)] }),
+    H("May I have a bite? Using the fork that had your mouth on it. It's like a secondhand kiss, isn't it? That's so embarrassing. Let me try."),
+    N("A fork clinks. She chews slowly, savoring it, and hums with satisfaction."),
+    N("The food is bitter under the spice, and your tongue feels thick. By the third bite, the basement tilts, slow and warm."),
+    H("I think I outdid myself. Not bad for a serial killer, huh? Another bite? Open wide. Behave. Ah... nom, nom, nom. You're adorable.", { choices: [C("Take the bite.", "Mmm. Look at that smile."), C("Shake your head.", "~Her smile thins. The fork hovers... then the smile returns. “Fine. More for me.”", 2, 1)] }),
+    H("Every little thing you do makes me want to do things. I still have my knives. I hope you haven't forgotten."),
+    H("And I hope you never plan on using them against me."),
+    N("She taps the blade at her hip, almost fondly, the way you would pat a sleeping dog."),
+    H("But I don't want to lose my pet. You still make my heart feel weird. My chest gets tight, and my face gets all warm. If you were gone I'd miss you every night.", { add: 1 }),
+    H("I'm joking about the serial part, by the way. Mostly. Technically a serial needs three, and I lost count at... Hm. Never mind. Eat your dinner.", { speed: 13 }),
+    H("And if you ever try to run, if you ever try to escape, just know you will be punished. So you'll behave, won't you? I can see that you will. I'm so glad.", { speed: 44 }),
+    N("While you sag against the pole, she kneels at your arm and swabs it clean. A needle slides into the crook of your elbow before you can flinch. Clear tubing runs up to a bag hanging from a hook on the pipe."),
+    H("Just fluids, {pet}. You've been so dehydrated, and I can't have you getting sick. Think of it as a little extra care. And a little extra... calm."),
+    H("Now, I got you a little gift. You love gifts, don't you? A special one, just for you. Close your eyes. Come on, really, close them.", { choices: [
+      { ...C("Close your eyes.", "~Darkness. Her breath is warm against your ear.", 1), goto: "collar" },
+      { ...C("Keep them open.", "Eyes closed, darling. I won't ask a third time.", 2, 1, { blinded: true }), goto: "blindfold" }] }),
+    N("Silk slides over your eyes, soft and cold, and knots behind your head. The world goes black.", { id: "blindfold" }),
+    N("Cold leather slides around your neck. A heavy buckle clasps shut with a metallic click.", { id: "collar", add: 1, branch: [{ if: "blinded", goto: "unblind" }], goto: "heavy" }),
+    N("The knot behind your head loosens. The silk falls away, and her face is inches from yours, smiling, pleased to be the first thing you see.", { id: "unblind" }),
+    H("Is it too heavy? Yep, it's your very own shock collar. I told you I wanted to keep you, and I'd be a bad owner if I didn't let you walk around the house.", { id: "heavy", speed: 14, choices: [C("“It's heavy. But I'll wear it.”", "Such a good pet already."), C("Claw at the collar.", "~The buckle will not budge. A faint warning hum buzzes against your throat, then stops. “Don't.”", 3, 2)] }),
+    H("The collar is only necessary. If you try to escape and I'm not there to stop you, this will. And only one thing can undo it: this remote."),
+    N("Click, click, click. She turns the remote over in her fingers, pressing the buttons one by one."),
+    H("There are a few buttons here. This one is for the shock. Would you like a little demonstration? I'm just kidding."),
+    H("I promise I won't shock you when you're well-behaved. But it does hurt."),
+    H("I'd tell you what the other buttons do, but I don't want you getting hold of the remote and trying to get out.", { speed: 14 }),
+    H("Promise you won't take this from me? I can see in your eyes that you won't. Good. Your reward is a kiss. Hold still, pet.", { speed: 14 }),
+    N("Soft lips press against your skin, quick and light. A little kiss, then another."),
+    H("Little kisses, just for you. Now then, would you like to leave the basement? It's up to you.", { choices: [C("“I'd rather stay. With you.”", "~She goes quiet. Her fingers twitch, as if she can't believe it.", 1, 0, { stayed: true }), C("“Yes. Please. I want to leave.”", "~She doesn't move. Then she smiles brightly, as if she had heard something else entirely.", 3, 2)] }),
+    H("Do you mean it? You just want to sit here with me and talk? I was right. You really are special."),
+    H("Part of me worried this was an act. But even terrified, even with the collar on, you want to stay and talk to me. This is wonderful. You're wonderful."),
+    N("Her eyes shine. She wipes them with the heel of her hand and laughs at herself, wetly and too loudly."),
+    H("I could just hold you. Or I could do other things to you. But if we played, I might get too rowdy, and I don't want to lose you."),
+    H("I'm starting to fall in love with you after all. Cutie pie.", { add: 1 }),
+    H("It feels good knowing your life is in my hands, doesn't it? You'll never have to worry about a single thing again."),
+    H("Every decision from now on is one I make for you."),
+    H("You're mine. I will never let anyone else see you again. I will never let anyone else feel you, or think about you.", { speed: 44 }),
+    N("She lifts your wrist and presses it to her cheek. Her pulse is racing, and she seems to want you to feel it."),
+    H("I had the news on while I was cooking. Your name wasn't mentioned a single time. Nobody misses you. Nobody cares. Nobody... but me."),
+    H("I'm all you have now. I'm everything. You're mine. And you always will be. Forever. Mine. You are mine.", { speed: 44, add: 1 }),
+    N("She takes your face in both hands. Her thumbs trace slow circles over your cheeks."),
+    H("So cute. My love. My sweetheart."),
+    N("A soft kiss lands on your skin, lingering far longer than the others."),
+    H("When I first found you, I thought you'd perish by the next day. Now I never want you gone. You understand me."),
+    H("You want what I want. You crave what I crave."),
+    N("She traces circles on your knee with one fingernail, humming four notes. They are the four notes you hum when you're nervous. You have never hummed them in front of her."),
+    H("One day, I'd like to see you in action. To see what you're capable of. You may not realize it yet, but I can see it in you. You're ready for blood.", { add: 1 }),
+    H("And the day I see you perform is the day I fall even more in love with you. Something so beautiful. So special. Vulnerable. You're adorable."),
+    H("Do you prefer kitty? Puppy? Something else? Just because you're mine doesn't mean I don't want to make you happy."),
+    H("I want to feel your blood rushing beneath your skin. You're alive. You're here.", { choices: [C("“...Kitty.”", "Kitty. Oh, that suits you, with those big eyes.", 1, 0, { kitty: true }), C("“Puppy.”", "Puppy. Mm, I thought so. So eager to please.", 1, 0, { puppy: true })] }),
+    H("You were in the wrong place at the wrong time. Or perhaps the right place at the right time. I saw you, and your fate was sealed with me. Forever. Mine. You are mine.", { speed: 44 }),
+    H("I wanted a dog when I was little. Daddy said no, so I... well. Never mind what I did. Do you like dogs?", { speed: 13 }),
+    H("You'd better. I'm going to name the next one after you.", { speed: 13 }),
+    H("Since I can't hurt you, I'll get my needs out another way. I'd like to hold your face. Play with your hair."),
+    H("Touch your skin. I just need to know you're real. My mind plays tricks on me."),
+    N("She chews the inside of her cheek, then smiles with every tooth."),
+    H("Be obedient, and put your face in my hands, will you?", { choices: [C("Lean into her hands.", "~She cradles your face, her thumbs gentle against your cheekbones."), C("Flinch away.", "Shh. No flinching. I would never hurt something I love.", 2, 1)] }),
+    N("A soft gasp. She smooths your hair and rests her palm on your cheek, humming under her breath."),
+    H("There you go. So well-behaved. Good {pet}. Would you be embarrassed if I asked you to {noise} for me? It is embarrassing. But if you refuse..."),
+    N("Click, click, click. The remote sounds sharp in the silence."),
+    H("If you resist, you will be shocked. We wouldn't want that, now would we? So go on. {cry} You can do that, can't you?", { speed: 44, choices: [{ ...C("“Woof.”", "Oh! Good puppy! Again!"), if: "puppy" }, { ...C("“Bark!”", "~You bark, hoarse and embarrassed. She squeals and claps her hands. “Louder!”"), if: "puppy" }, { ...C("“Meow.”", "Such a pretty little kitty."), if: "kitty" }, { ...C("“Purr...”", "~You purr, low and trembling. She melts against you. “Oh, you can really do it.”"), if: "kitty" }] }),
+    H("So well-behaved. I love you, my good {pet}."),
+    H("I know you wanted to stay down here with me, but maybe we can go upstairs, and I can show you my bed."),
+    H("Our bed. I won't make you sleep at the foot like a dog. You can cuddle up with me.", { choices: [C("“Okay. Upstairs.”", "Wonderful. I knew you'd say yes."), C("“Can we stay here a little longer?”", "Aww, so clingy. But no, {pet}. The bed is so much nicer.", 2)] }),
+    H("I'm rather warm. And I haven't cuddled with anyone in a very, very long time. In my profession, things get lonely."),
+    N("She tucks the same lock of hair behind her ear again and again. It never stays."),
+    H("But I don't have to be lonely anymore. I have you now."),
+    N("She kneels behind the pole. Rope rustles, then loosens, and falls away from your wrists."),
+    N("You slide sideways like a doll with its strings cut. Your arms will not lift. Your legs will not answer. She catches you with a laugh, as if you had done something sweet."),
+    H("There you go, {pet}, all free. But please don't forget what's around your neck. A collar made just for you."),
+    N("Click, click, click. The remote rattles gently in her hand."),
+    H("Okay. Up we go, {pet}. Don't try to stand, you'll only fall. I have you. We'll go upstairs, and I'll show you your new home. Just remember: you're my pet, and you belong to me. Don't try anything silly. Got it?", { speed: 14, choices: [C("“Got it.”", "Good {pet}. Then up we go."), C("“I won't run.”", "You say that so sweetly. You couldn't outrun a snail tonight, but I love that you'd try.", 2)] }),
+    N("She hauls you upright with an arm around your waist. Your legs fold like paper, so she takes your whole weight, climbing one stair at a time with the IV stand rattling behind."),
+    H("Okay, {pet}. Let's go start your new life together."),
+
+    N("The stairs are narrow and steep. Warm light spills from above, and the house smells of bleach and roasted meat."),
+    N("She wheels you through every room like a proud hostess, the drip bag swaying from a hook on the chair. Every window is boarded over. Every door has three locks, and she hums as she turns each key."),
+    H("Isn't it cozy? I did all of this for us. You told me you hated the outside, remember? You said you never wanted to go back.", { choices: [
+      C("“I never said that.”", "You did. You say so many things in your sleep, {pet}. Do you really think you'd remember?", 3, 2, { punished: true }),
+      C("“...Maybe I did.”", "~Relief floods her face. She kisses your knuckles one by one, and something in your mind quietly rearranges itself.", 1)] }),
+    H("You take two sugars in your tea, and you tear the packet in half before you open it. You hum the same four notes when you're nervous."),
+    H("You haven't called your sister in eleven months. Which of those did I get wrong?", { choices: [
+      C("“Stop. How do you know all that?”", "~She tilts her head, delighted by the crack in your voice. “Every true thing I say is a key, {pet}. And you keep handing me more.”", 2, 0, { raw: "+1" }),
+      C("Keep your face blank.", "~Her eyes narrow, bright with interest. “A mask. How clever. Don't worry. I'll peel it off.”", 1, 1, { fake: "+1" })] }),
+    N("The bedroom is small and immaculate. Black sheets, a white pillow, and on the nightstand a lamp, a roll of gauze, and a row of small glass bottles."),
+    H("Our bed. Doesn't it feel like it has always been ours? Lie down. You've had such a long, long day.", { alt: { kitty: "Our bed. Doesn't it feel like it has always been ours? Lie down, my little kitty. You've had such a long, long day.", puppy: "Our bed. Doesn't it feel like it has always been ours? Lie down, my good puppy. You've had such a long, long day." } }),
+    N("She lifts you into bed. Padded cuffs click around your wrists, chained to the headboard, and she tucks the sheets up to your chin. They smell of lavender, and of something metallic underneath. Sleep takes you in pieces."),
+    N("Somewhere in the dark, the mattress dips. A warm weight settles over you, lips at your throat, a voice whispering your name like a prayer. The lamp clicks off. You cannot lift a hand to stop her. You cannot lift a hand at all."),
+    N("You wake to gray light and a deep, throbbing ache. You are naked under the sheet, and the sheet is damp. The cuffs have rubbed your wrists raw, ringed in dark purple. On the nightstand, beside a glass of water, two small blue pills sit on a saucer."),
+    N("She sits on the edge of the bed in a silk robe, stirring a cup of tea, a fresh bite mark at her collarbone, watching you take it all in."),
+    H("Good morning, {pet}. Look at all those bruises. You thrash so much in your sleep."),
+    H("And don't look at me like that. You asked so sweetly last night. Don't you remember? You said my name, over and over.", { choices: [
+      C("“I never asked for this.”", "You did. You begged me. How can you say such a cruel thing, after everything I've done for you?", 3, 2, { punished: true }),
+      C("“...I don't remember.”", "~She smiles, tender and proud, as if you had passed a test. “That's all right, my love. I remember for both of us.”", 1)] }),
+    N("The tea has no steam. The room seems to breathe, once, as if the walls were listening. You cannot remember falling asleep."),
+    H("Time for your check-up. I take such good care of you. You'll be a perfect patient, won't you?"),
+    H("Oh, did I tell you? I dream in color. Mostly red, and a sort of lavender. Do you dream in color? Don't answer. I'll find out. I watch you sleep, you know.", { speed: 13 }),
+    N("She pulls a white coat over her dress and snaps on latex gloves. On the tray: a stethoscope, a syringe, and a leather notebook open to columns of dates, heartbeats, and single words in red ink. Afraid. Afraid. Hopeful. Afraid."),
+    H("Just a little vitamin shot. You've been so pale lately. And I want to see how you bleed, how you heal."),
+    H("I write it all down, {pet}. Every little thing. For science. For love.", { choices: [
+      C("Let her take your arm.", "~She unlocks one cuff and draws your arm out along the sheet. The needle slides in with a sting that spreads cold up your arm. She kisses the inside of your elbow where it went in. Her pen scratches a single word: Calm. She frowns at it, as if it were a lie. “Good. So brave.”", 1),
+      C("Pull your arm away.", "~The chain rattles against the headboard as her gloved hand clamps around your elbow with startling strength, and the needle goes in anyway, deeper than it should. Her pen scratches a word and underlines it twice: Fear. “Shh. Don't fight me. You'll only bruise.”", 3, 2, { punished: true })] }),
+    N("Warmth crawls through your veins. The ceiling swims, and the lamp melts into a smear of gold. Her face hovers above you, enormous and delighted."),
+    H("Vitamins, {pet}. Sleep a little. I'll be here when you wake. I'm always here."),
+    N("Her humming drops to a whisper: the four notes, a pause, the four notes again, perfectly even, like a machine."),
+    N("Hours later, the bruise on your wrist has doubled, and another has appeared on your ribs. You do not remember how."),
+    H("You thrash so much in your sleep. I had to hold you down so you wouldn't hurt yourself. I'm sorry if I was too rough.", { choices: [
+      C("“Thank you for keeping me safe.”", "~She weeps with joy and presses her forehead to yours. “You see? You do understand.”", 1),
+      C("“You hit me. I remember.”", "~Her smile cracks. For a second you see something cold behind it. “Then I suppose we need to talk about your memory.”", 3, 2, { punished: true })] }),
+    N("The lamp flickers. She sets the syringe down very, very gently.", { id: "gate", branch: [{ if: "punished", goto: "beat" }, { ge: { fake: 1 }, goto: "beat" }], goto: "love" }),
+
+    N("She presses her thumb into the bruise on your wrist, slowly, until you gasp. Her eyes gleam. Then she bends and kisses it, soft as breath.", { id: "love", add: 2, set: { loved: true } }),
+    H("See? Love leaves marks. Everyone who loves leaves marks. Mine are just honest.", { goto: "care" }),
+
+    N("Her hand comes out of nowhere. A crack, and your head snaps sideways. Your cheek burns, and copper floods your mouth. Her eyes are already full of tears.", { id: "beat", add: 3 }),
+    H("Don't. Look. At me. Like that. I see every flicker of doubt, and every mask you put on. Do you know what I gave up for you? Do you know how many nights?", { speed: 44 }),
+    N("She hits you again, in the ribs, and the air leaves you in a wet gasp. Between blows she sobs, stroking your hair with her free hand, kissing your temple, your wet cheek, apologizing against your skin. Then the next blow lands."),
+    H("I'm sorry. I'm sorry. I love you. Look at me. No, don't, I can't, I'm sorry. Oh... there it is. Don't stop. Show me."),
+    N("When it ends you are curled on the sheets, shaking. She is flushed and panting, tears streaking her face, her gloves speckled red. Her pen is already moving across the notebook with a trembling hand: Rage. Real. Beautiful. A tear splashes the page, and she smudges it away with her thumb."),
+    H("Oh... oh, no. Look what you made me do. Why do you always make me do this? I never wanted to hurt you. I only wanted to hear the real sound.", { add: 2 }),
+
+    N("She fetches gauze and a bowl of warm water and tends your wounds with trembling hands, kissing each bruise as she goes.", { id: "care", add: 2 }),
+    H("There, there. Shh. I'm sorry. I'm so sorry. No one will ever take care of you the way I do. No one will ever want the real you the way I do. Say it. Say no one ever has.", { alt: { loved: "There, there. Shh. Doesn't it feel good to be marked by someone who loves you? No one will ever want the real you the way I do. Say it. Say no one ever has." }, choices: [
+      C("“No one ever has.”", "~She sobs and kisses your forehead, your eyelids, your split lip. “Mine. Mine. Mine.”", 1, 0, { raw: "+1" }),
+      C("Say nothing.", "~Her thumb sinks into the fresh bruise on your ribs until you cry out. “Say it.” Then, softly: “Good.”", 2, 1)] }),
+    N("The days blur. Pain, tenderness, a needle, a lullaby. Weeks, perhaps. At last the tubing leaves your arm, and the cuffs come off the headboard one wrist at a time, the remote always in her other hand. Your legs remember how to walk, wobbling like a newborn deer's."),
+    H("You were so good today, {pet}. I think you're ready to see my favorite place. Come with me."),
+    N("A narrow door beneath the stairs. Behind it, a tiny room lined with corkboard, pinned from floor to ceiling with polaroids. Faces. Dozens. Each caught mid-scream, mid-sob, mid-plea, each labeled in red ink with a name and a single word."),
+    H("My friends. Every one of them gave me one perfect moment, the real one, the one underneath. I keep them so no one is ever forgotten."),
+    H("Isn't that more loyal than anyone else's friendship?"),
+    N("She smiles too wide, too long. When it fades, it fades in pieces, as if switched off one muscle at a time."),
+    N("She touches each polaroid in passing, quickly, lightly, like a child counting fence posts."),
+    N("In the corner of the board, beside a card with your name on it, a blank polaroid waits. The space under your name is empty."),
+    H("That one is yours. Yours is the only one I haven't taken yet. I'm waiting until it's perfect.", { choices: [
+      C("“Where are they now?”", "Closer than you think. The roses outside have never looked so alive... Oh, don't make that face. No, do. Do that face again.", 2, 1, { raw: "+1" }),
+      C("Say nothing, eyes on the empty card.", "~She watches your gaze slide over the blank polaroid and presses a hand to her chest, as if you had whispered a vow.", 1)] }),
+    N("Your phone, which you thought lost, lies face up on the kitchen table. It lights up. Mira: Where are you? Mom's worried. Please call me back."),
+    H("Mira. Your sister. Eleven months without a call, and now she's worried? How convenient. Look at me. Do you miss her?"),
+    H("Do you love her more than you could ever love me?", { choices: [
+      C("“Please, don't hurt her.”", "~Her smile trembles. “Don't hurt her.” She repeats it, as if tasting it. “You've never said anything like that about me. Not once.”", 2, 1, { raw: "+1", miraSafe: true }),
+      C("“I don't care about her.”", "~She studies your face for a long moment. “Liar. Your pupils jumped when I said her name. I know what real looks like.”", 2, 1, { fake: "+1", lied: true })] }),
+    N("She types with one thumb, smiling: Busy, I'm fine, don't worry about me, love you. Send. Then she deletes the thread, and Mira's contact, and holds the phone out for you to see.", { add: 2 }),
+    H("There. One less thing between us, {pet}. Don't worry, {pet}. I would never hurt your sister. Not unless she comes looking."),
+    N("That evening, three knocks at the front door. Slow. Official. A pause, then three more.", { add: 1 }),
+    N("She goes completely still. One hand covers your mouth. In the other, the syringe rests against your throat, the needle barely touching skin."),
+    H("Shh. Show me, {pet}. Show me how badly you want to be found.", { speed: 44, choices: [
+      C("Cry out.", "~Your cry tears through her fingers. The knocking stops. A voice: “Ma'am? Is someone in there?” Her eyes go wide with joy. “There,” she breathes. “There it is.”", 3, 3, { raw: "+2", cried: true }),
+      C("Stay silent.", "~You do not make a sound. The knocking comes again, softer. She waits a long time with the needle against your skin. “...Was that fear? Or was that loyalty?”", 1, 0, { silent: true })] }),
+    N("She calls through the door, honey-sweet, that it was only the television. A long pause. The footsteps retreat, and a card slides through the mail slot and lands face up on the floor.", { alt: { silent: "The footsteps retreat down the porch. A card slides through the mail slot and lands face up on the floor." } }),
+    N("A police officer's name, a phone number, and on the back, in blue pen: Missing person report, filed six days ago. Your name underneath."),
+    N("She stares at the empty polaroid on the corkboard for a long time, then at you. She does not raise the camera.", { alt: { cried: "She snatches the camera from the shelf. A flash. The polaroid slides out, and your face slowly emerges from the gray: mouth open, eyes wild, utterly raw. She pins it beside your name with trembling fingers." } }),
+    H("Nobody misses you? Who told you that? I never said that, {pet}. You must have dreamed it. You dream so many things.", { speed: 44, add: 2 }),
+    N("One corner of her smile flutters, a spasm she can't control. She presses a knuckle to it until it settles."),
+    N("The kitchen is blindingly white. On the table lie a chef's knife on a folded cloth and, beside it, the remote."),
+    H("I'm going out for a little while, to buy you something pretty. The knife is yours, if you want it.", { alt: { anything: "I'm going out for a little while, to buy you something pretty. The knife is yours, if you want it. You said you'd do anything for the ones you love, remember?" }, choices: [
+      C("Take the knife.", "~The handle is still warm from her hand. She watches your fingers close around it, and her pupils swell with something like worship. “There you are.”", 1, 0, { knife: true }),
+      C("Leave it on the table.", "~She looks almost disappointed. Then she laughs and kisses your cheek. “Next time.”", 1)] }),
+    N("She leaves. You hear the locks turn: one, two... and then nothing. The third never clicks. The house holds its breath.", { choices: [
+      C("Walk out the door.", "~The handle turns. Cold air hits your face. Behind you the house is silent, and yet you swear you can still hear her humming.", 3, 0, { fled: true }),
+      C("Stay where you are.", "~You wait on the kitchen floor as the minutes crawl by. At last the lock clicks, and she comes home smiling, as if she had known.", 1)] }),
+    N("The collar rests against your throat, heavier than before.", { id: "fin", branch: [
+      { if: "fled", rmin: 18, goto: "endD" }, { if: "fled", goto: "endC" }, { if: "knife", ge: { raw: 3 }, goto: "endB" }, { if: "knife", goto: "endF" }, { ge: { raw: 3 }, goto: "endA" }, { goto: "endE" }] }),
+
+    N("The door has been unlocked for weeks. You noticed on the third day. You noticed again on the tenth. You never went through it.", { id: "endA" }),
+    H("You could leave, you know. I'd never stop you now. I would only... die a little. Isn't that funny? A girl who takes everything, undone by a single door."),
+    N("She sits on the floor beside the bed, her cheek against your knee, the notebook forgotten. Its pages are full of one word, over and over, in handwriting that is no longer neat."),
+    H("Real. Real. Real. You're the only one who is real all the way down.", { alt: { anything: "Real. Real. Real. You said you'd do anything for the ones you love, and you meant it. You're the only one who ever meant it." } }),
+    N("On the corkboard, your polaroid holds no scream. It is you, asleep, her head on your shoulder, both of you smiling. It is the only photograph in the room where anyone is happy."),
+    N("You stay. Not because of the collar, which was always only plastic. Not because of the locks. Because somewhere along the way her cruelty and your wanting braided into one thing, and you can no longer find the end of either.", { end: true }),
+
+    N("The knife fits your hand as though it grew there. She watches you from the doorway with wet, shining eyes.", { id: "endB" }),
+    H("You kept it. You looked at it, and you kept it. Oh, my love. My perfect, honest love. Tell me what you feel. Tell me everything."),
+    N("What you feel is simple and terrible: warm, like a held breath finally let go. You tell her. She shakes with joy."),
+    H("Tonight, then. Someone from the café, maybe, the one who always stared. Or Mira. Family always comes looking, doesn't it?", { alt: { miraSafe: "Tonight, then. Someone from the café, maybe, the one who always stared. Not Mira. I promise. You asked me so beautifully. Family stays. Everyone else, though..." } }),
+    N("The night is cold and the street is empty. She slides her hand into yours, the knife in your other hand, and the two of you walk out together into the dark, in matching steps, humming the same four notes.", { end: true }),
+
+    N("You take the knife. She watches your fingers close around it and smiles the way people smile at a sunrise.", { id: "endF" }),
+    H("You've worn a mask for days. I let you. I wanted to see how long it would last. Now take it off. Show me the real one."),
+    N("She steps closer, arms open. You step closer too, and your arms close around her like an embrace. The knife slides in between her ribs, and she gasps. Not in pain. In wonder."),
+    H("There. There. Oh, that face. That's the one. That's the one I've been looking for."),
+    N("She slides down against you, still smiling, and lays trembling fingers on your cheek as if to memorize it. The camera slips from her hand. At your feet a polaroid slides out and begins to develop: your face, mouth open, utterly raw."),
+    N("You sit with her a long time. The locks are open. The collar is dead. And on the corkboard, a blank polaroid waits beside a card with your name on it, like an invitation you will spend your life refusing.", { end: true }),
+
+    N("You get as far as the porch. The collar hums once against your throat, a tiny buzz, no more than a phone in a pocket. Your legs fold anyway.", { id: "endC" }),
+    N("You kneel on the cold boards, shaking, and nothing hurts. Nothing is hurting you at all. Behind you she stands in the doorway with a shopping bag in one hand and a syringe held between her fingers like a flower."),
+    H("Oh, {pet}. Did you think it would hurt? It was never connected. All it does is hum. Your body did the rest on its own. I only taught it what to fear."),
+    H("Isn't that the most beautiful thing? I never had to lay a finger on you. You flinched all by yourself."),
+    N("The needle is cold. The porch swims, and the stars smear into long white lines. Somewhere far below, a pole is waiting, and a notebook with a fresh page.", { end: true }),
+
+    N("You run. The collar buzzes once against your throat and your whole body screams stop. You don't. You tear at the buckle and it comes away in your hands: nothing but plastic, a tiny motor that hums, and a very good lie.", { id: "endD" }),
+    N("You do not stop until you reach the lights of a gas station, a stranger's startled face, a phone. Taped to the window, between a lottery poster and a flyer for a lost cat: your own face, and under it, six days of MISSING."),
+    N("Police find the house at dawn. Every door stands open. The kitchen table is set for two, and on one plate lies a polaroid of you asleep, with a single word on the back in red ink: Mine."),
+    N("In the weeks after, you sometimes hear someone humming four notes outside your window. Your sister's apartment is on the fourth floor. The humming is always on the fourth floor.", { end: true }),
+
+    N("You stop fighting. Not out of love. Fighting only makes the bruises darker, and the days are long.", { id: "endE" }),
+    H("Look at you. So quiet. So obedient.", { alt: { lied: "Look at you. So quiet. So obedient. I know a mask when I see one, {pet}. But I've decided I like this one. It's so well made." } }),
+    H("I was afraid I'd broken you. But you're only learning. Everyone learns, in the end."),
+    N("The days fold into one another: needle, lullaby, bruise, kiss. The polaroid on the corkboard stays blank, because she cannot find the real you under all that quiet. She keeps looking, patiently, smiling."),
+    N("No one is coming to look for you. Not even you.", { end: true })
+  ]
+};
+</script>
+
+<script>
+/* ======================= ENGINE (non serve toccarlo) ======================= */
+const $ = id => document.getElementById(id), G = GAME, last = G.scenes.length - 1;
+let S = { music: 0, mv: .5, sv: .8, cur: 0, btn: 0 }, idx = 0, state = { meter: G.meterStart || 0, res: 0, flags: {} }, hist = [], timer = null, full = '', track = -1, ac;
+try { Object.assign(S, JSON.parse(localStorage.getItem('gothic-vn') || '{}')); } catch (e) {}
+[['music', G.music], ['cur', G.cursors], ['btn', G.themes]].forEach(([k, a]) => { if (!(S[k] < a.length)) S[k] = 0; });
+
+/* audio */
+const bgm = new Audio(); bgm.loop = true;
+const click = new Audio(G.clickSound || ''); let clickOK = !!G.clickSound; click.onerror = () => clickOK = false;
+function beep() { try { ac = ac || new AudioContext(); const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime;
+  o.type = 'triangle'; o.frequency.setValueAtTime(180, t); o.frequency.exponentialRampToValueAtTime(70, t + .2);
+  g.gain.setValueAtTime(.4 * S.sv * (G.clickGain ?? .3), t); g.gain.exponentialRampToValueAtTime(.001, t + .25);
+  o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + .25); } catch (e) {} }
+function sfx() { if (!S.sv) return; if (!clickOK) return beep(); const a = click.cloneNode(); a.volume = Math.min(1, S.sv * (G.clickGain ?? .3)); a.play().catch(beep); }
+const VO = {};
+function voice(k) { if (!VO[k]) { const src = k ? (G.voices || {})[k] : G.typeSound, v = VO[k] = { ok: !!src };
+  if (src) { v.a = new Audio(src); v.a.onerror = () => v.ok = false; } } return VO[k]; }
+function tickSyn(nar, m = 1) { try { ac = ac || new AudioContext(); const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime;
+  o.type = nar ? 'triangle' : 'square';
+  o.frequency.value = (nar ? 200 + Math.random() * 60 : 640 + Math.random() * 260) * (1 - .4 * lvl());
+  g.gain.setValueAtTime((nar ? .2 : .085) * S.sv * m, t); g.gain.exponentialRampToValueAtTime(.0001, t + (nar ? .09 : .045));
+  o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + .1); } catch (e) {} }
+function tick(k) { if (!S.sv) return; if ((k ? (G.voices || {})[k] : G.typeSound) === '') return;
+  const m = k ? (G.voiceVolumes || {})[k] ?? .6 : G.typeVolume ?? 1, v = voice(k); if (!v.ok) return tickSyn(!k, m);
+  const a = v.a.cloneNode(); a.volume = Math.min(1, S.sv * m); a.playbackRate = (.9 + Math.random() * .25) * (1 - .3 * lvl());
+  a.play().catch(() => tickSyn(!k, m)); }
+function music() { const t = G.music[S.music];
+  if (!t || !t.src) { bgm.pause(); track = -1; return; }
+  if (track !== S.music) { bgm.src = t.src; track = S.music; }
+  bgm.volume = S.mv * (G.musicGain ?? .35); bgm.play().catch(() => {}); }
+
+/* black ribbon bow on the text box */
+(function () { const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='160' height='80' viewBox='0 0 160 80'><g fill='#06030a' stroke='#8d78b8' stroke-width='1.6' stroke-linejoin='round'><path d='M74 38 48 74l14-5 7 7 14-38z'/><path d='M86 38l26 36-14-5-7 7-14-38z'/><path d='M80 33C58 8 18 6 13 28c-4 19 38 22 67 8z'/><path d='M80 33c22-25 62-27 67-5 4 19-38 22-67 8z'/><rect x='71' y='27' width='18' height='19' rx='6'/></g><path d='M26 23c14-7 30-5 44 4M134 23c-14-7-30-5-44 4' stroke='#fff' stroke-opacity='.2' stroke-width='1.6' fill='none' stroke-linecap='round'/></svg>`;
+  document.documentElement.style.setProperty('--rb', `url("data:image/svg+xml,${encodeURIComponent(svg)}")`);
+  const R = document.documentElement.style; R.setProperty('--rw', (G.ribbonWidth || 18) + 'cqw');
+  if (G.ribbon) { const pi = new Image(); pi.onload = () => R.setProperty('--rb', `url("${G.ribbon}")`); pi.src = G.ribbon; } })();
+
+/* look & settings */
+function apply() {
+  const c = G.cursors[S.cur] || {}, b = G.themes[S.btn] || G.themes[0], r = document.documentElement.style;
+  document.body.style.cursor = c.svg ? `url("data:image/svg+xml,${encodeURIComponent(c.svg)}") ${c.hot || '16 16'}, auto`
+    : c.src ? `url("${c.src}") ${c.hot || '0 0'}, auto` : 'auto';
+  ['pn', 'tx', 'bd', 'bb', 'bf', 'hi', 'sh'].forEach(k => b[k] && r.setProperty('--' + k, b[k]));
+  r.setProperty('--op', (G.boxOpacity ?? .92) * 100 + '%');
+  bgm.volume = S.mv * (G.musicGain ?? .35);
+  try { localStorage.setItem('gothic-vn', JSON.stringify(S)); } catch (e) {}
+}
+function fill(id, arr, k) { const s = $(id); arr.forEach((o, i) => s.add(new Option(o.name, i))); s.value = S[k];
+  s.onchange = () => { S[k] = +s.value; apply(); if (k === 'music') music(); }; }
+fill('sm', G.music, 'music'); fill('sc', G.cursors, 'cur'); fill('sb', G.themes, 'btn');
+['mv', 'sv'].forEach(k => { const r = $(k); const bar = () => r.style.setProperty('--v', r.value * 100 + '%'); r.value = S[k]; bar(); r.oninput = () => { S[k] = +r.value; bar(); apply(); }; r.onchange = sfx; });
+
+/* wallpaper + glitch */
+const im = $('bg'), gr = $('gr'), gc = $('gc'), wall = $('wall'), rnd = Math.random;
+mood();
+im.onload = () => wall.style.visibility = 'visible'; im.onerror = () => wall.style.visibility = 'hidden';
+function bg(s) { if (!s) { wall.style.visibility = 'hidden'; im.removeAttribute('src'); return; }
+  if (im.getAttribute('src') !== s) { im.src = s; gr.src = s; gc.src = s; } }
+function glitch() { const L = lvl();
+  if (wall.style.visibility === 'visible') {
+    [gr, gc].forEach((el, i) => { const y = rnd() * 75, h = 3 + rnd() * (16 + 20 * L);
+      el.style.clipPath = `inset(${y}% 0 ${Math.max(0, 100 - y - h)}% 0)`;
+      el.style.transform = `translateX(${(i ? 1 : -1) * (.4 + rnd() * 1.1) * (1 + 2 * L)}cqw)`; el.style.opacity = .7 + .25 * L; });
+    im.style.transform = `translateX(${(rnd() - .5) * .8 * (1 + 3 * L)}cqw)`;
+    setTimeout(() => { gr.style.opacity = 0; gc.style.opacity = 0; im.style.transform = ''; }, (80 + rnd() * 130) * (1 + L));
+  }
+  setTimeout(glitch, (1800 + rnd() * 5500) * (1 - .85 * L)); }
+if (G.glitch && !matchMedia('(prefers-reduced-motion: reduce)').matches) glitch();
+
+/* scenes */
+function type() { const sp = G.scenes[idx].speaker || '', ms = G.scenes[idx].speed ?? G.textSpeed; clearInterval(timer); timer = null; const el = $('txt');
+  if (!ms) { el.textContent = full; done(); return; }
+  let c = 0; el.textContent = '';
+  timer = setInterval(() => { el.textContent = full.slice(0, ++c);
+    if (c % (G.typeEvery || 2) === 0 && /\S/.test(full[c - 1])) tick(sp);
+    if (c >= full.length) { clearInterval(timer); timer = null; done(); } }, ms); }
+(function expand() { const A = G.scenes; A.forEach((s, i) => { s.id = s.id || '_' + i; }); const out = [];
+  A.forEach((s, i) => { out.push(s); (s.choices || []).forEach((c, j) => { if (!c.reply) return;
+    const nar = c.reply[0] === '~', nx = c.goto != null ? c.goto : (A[i + 1] ? A[i + 1].id : null);
+    const r = { id: `_r${i}_${j}`, text: nar ? c.reply.slice(1) : c.reply, goto: nx };
+    if (!nar) r.speaker = 'Her'; if (nx == null) r.end = true; out.push(r); c.goto = r.id; }); });
+  G.scenes = out; })();
+const ids = {}; G.scenes.forEach((s, i) => { if (s.id) ids[s.id] = i; });
+function lvl() { return Math.max(0, Math.min(1, state.meter / (G.meterMax || 10))); }
+function mood() { document.documentElement.style.setProperty('--dim', (G.wallpaperBrightness ?? .5) * (1 - .55 * lvl())); }
+function visible(c) { return !c.if || state.flags[c.if]; }
+function hasChoices() { return (G.scenes[idx].choices || []).some(visible); }
+function change(o) { if (o.res) state.res = (state.res || 0) + o.res; if (o.add) state.meter = Math.max(0, state.meter + o.add); if (o.set) for (const [k, v] of Object.entries(o.set)) state.flags[k] = typeof v === 'string' && /^[+-]\d+$/.test(v) ? (state.flags[k] || 0) + +v : v; }
+function target(s) { if (s.end) return -1;
+  for (const b of s.branch || []) if ((!b.if || state.flags[b.if]) && (b.min == null || state.meter >= b.min) && (b.max == null || state.meter <= b.max) && (b.rmin == null || state.res >= b.rmin) && (b.rmax == null || state.res <= b.rmax) && (!b.ge || Object.entries(b.ge).every(([k, v]) => (state.flags[k] || 0) >= v))) return ids[b.goto];
+  return s.goto != null ? ids[s.goto] : idx + 1 < G.scenes.length ? idx + 1 : -1; }
+function done() { if (!hasChoices()) return; const box = $('choices'); box.innerHTML = '';
+  G.scenes[idx].choices.filter(visible).forEach(c => { const b = document.createElement('button'); b.textContent = c.text; b.onclick = () => choose(c); box.appendChild(b); });
+  box.hidden = false; $('next').hidden = true; }
+function snap() { hist.push({ i: idx, st: JSON.stringify(state) }); }
+function choose(c) { snap(); change(c); go(c.goto != null ? ids[c.goto] : idx + 1); }
+function finish() { hist = []; state = { meter: G.meterStart || 0, res: 0, flags: {} }; mood(); $('choices').hidden = true; screen(false); }
+function go(n, restore) { if (n == null || !G.scenes[n]) return finish();
+  idx = n; const s = G.scenes[n]; if (!restore) change(s); mood();
+  full = s.text; for (const k in s.alt || {}) if (state.flags[k]) full = s.alt[k];
+  { const K = state.flags.kitty, P = state.flags.puppy; full = full.replace(/\{pet\}/g, K ? 'kitty' : P ? 'puppy' : 'darling').replace(/\{noise\}/g, K ? 'meow or purr' : 'bark or woof').replace(/\{cry\}/g, K ? 'Meow, meow. Purr for me.' : 'Woof, woof. Bark for me.'); }
+  $('who').textContent = s.speaker || ''; $('who').hidden = !s.speaker;
+  bg(s.bg || G.wallpaper); $('cnt').textContent = G.debug ? 'obsession ' + state.meter : '';
+  $('choices').hidden = true; $('next').hidden = false; $('back').disabled = !hist.length;
+  $('next').innerHTML = target(s) === -1 ? 'The End' : 'Next &rsaquo;'; type(); }
+function next() { if (timer) { clearInterval(timer); timer = null; $('txt').textContent = full; done(); return; }
+  if (hasChoices()) return; snap(); go(target(G.scenes[idx])); }
+function back() { const h = hist.pop(); if (!h) return; state = JSON.parse(h.st); go(h.i, true); }
+function screen(g) { $('title').hidden = g; $('game').hidden = !g; if (!g) bg(G.wallpaper); }
+
+/* wiring */
+document.title = G.title; $('gt').textContent = G.title; $('sub').textContent = G.subtitle; bg(G.wallpaper); apply();
+$('start').onclick = () => { hist = []; screen(true); go(0); music(); };
+$('opt').onclick = $('gear').onclick = () => $('set').hidden = false;
+$('close').onclick = () => $('set').hidden = true;
+$('next').onclick = next; $('back').onclick = back;
+document.addEventListener('click', e => { const b = e.target.closest('button'); if (b) { sfx(); b.blur(); } });
+addEventListener('keydown', e => { const k = e.key;
+  if (!$('set').hidden) { if (k === 'Escape') { sfx(); $('set').hidden = true; } return; }
+  if ($('game').hidden) return;
+  if (/^[1-4]$/.test(k) && !$('choices').hidden) { const c = G.scenes[idx].choices.filter(visible)[+k - 1]; if (c) { sfx(); choose(c); } return; }
+  if (k === 'ArrowRight' || k === ' ' || k === 'Enter') { e.preventDefault(); sfx(); next(); }
+  else if (k === 'ArrowLeft') { sfx(); back(); }
+  else if (k === 'Escape') { $('set').hidden = false; } });
+</script>
+</body></html>
